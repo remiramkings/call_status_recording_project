@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:call_status_recording_project/Notification_Services.dart';
+import 'package:call_status_recording_project/app_launch.dart';
+import 'package:call_status_recording_project/file_list.dart';
 import 'package:call_status_recording_project/audio_record_widget.dart';
+import 'package:call_status_recording_project/audio_recording_service.dart';
 import 'package:call_status_recording_project/call_overlay/call_state_handler.dart';
 import 'package:call_status_recording_project/call_overlay/call_state_service.dart';
 import 'package:call_status_recording_project/overlay_call_status.dart';
@@ -26,14 +29,20 @@ void callBack(String tag) {
   print(tag);
   switch (tag) {
     case "start_record":
-      Navigator.push(navigatorKey.currentState!.context,
-            MaterialPageRoute(builder: (context) => AudioRecordWidget()));
+      // Navigator.push(navigatorKey.currentState!.context,
+      //       MaterialPageRoute(builder: (context) => AudioRecordWidget()));
+      // AudioRecoringService.getInstance().startRecording();
+      AppLaunch.getInstance().openApp();
+      break;
+    case "close":
+      SystemAlertWindow.closeSystemWindow(
+          prefMode: SystemWindowPrefMode.OVERLAY);
       break;
     default:
-      SystemAlertWindow.closeSystemWindow(prefMode: SystemWindowPrefMode.OVERLAY);
+      SystemAlertWindow.closeSystemWindow(
+          prefMode: SystemWindowPrefMode.OVERLAY);
   }
 }
-
 
 /// Defines a callback that will handle all background incoming events
 @pragma(
@@ -43,7 +52,7 @@ Future<void> phoneStateBackgroundCallbackHandler(
   String number,
   int duration,
 ) async {
-    callStateHandler(event, number, duration);
+  callStateHandler(event, number, duration);
 }
 
 class MyApp extends StatelessWidget {
@@ -56,7 +65,6 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         navigatorKey: navigatorKey,
         theme: ThemeData(
-        
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
@@ -74,7 +82,6 @@ class MyApp2 extends StatelessWidget {
         title: 'Flutter Demo',
         navigatorKey: navigatorKey,
         theme: ThemeData(
-        
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
@@ -92,17 +99,15 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> with WidgetsBindingObserver {
+  bool startRecording = true;
+  bool stopRecording = false;
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      await CallStateService
-        .getInstance()
-        .checkPermission();
+      await CallStateService.getInstance().checkPermission();
     }
   }
-
-  
 
   @override
   void dispose() {
@@ -113,16 +118,16 @@ class _ExampleState extends State<Example> with WidgetsBindingObserver {
 
   Future initAll() async {
     final callStateService = CallStateService.getInstance();
-    callStateService
-      .checkPermission();
-    callStateService
-      .initBackgroundService(phoneStateBackgroundCallbackHandler,callBack);
+    callStateService.checkPermission();
+    callStateService.initBackgroundService(
+        phoneStateBackgroundCallbackHandler, callBack);
   }
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+    //AudioRecoringService.getInstance().startRecording();
     initAll();
   }
 
@@ -134,12 +139,45 @@ class _ExampleState extends State<Example> with WidgetsBindingObserver {
         centerTitle: true,
       ),
       body: Center(
-          child: Column(
-            children: <Widget>[
-              Text("Hang on, the system will do all the things for you")
-            ],
-          ),
+        child: Column(
+          children: <Widget>[
+            Text("Hang on, the system will do all the things for you"),
+            Visibility(
+              visible: startRecording,
+              child: ElevatedButton(
+                  onPressed: () {
+                    AudioRecoringService.getInstance().startRecording();
+                    setState(() {
+                      startRecording = false;
+                      stopRecording = true;
+                    });
+                  },
+                  child: Text('Start recording')),
+            ),
+            Visibility(
+              visible: stopRecording,
+              child: ElevatedButton(
+                  onPressed: () {
+                    AudioRecoringService.getInstance().stopRecording();
+
+                    startRecording = true;
+                    stopRecording = false;
+
+                    setState(() {});
+                  },
+                  child: Text('Stop recording')),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FileList()),
+                  );
+                },
+                child: const Text('Get files'))
+          ],
         ),
+      ),
     );
   }
 }

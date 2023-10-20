@@ -86,12 +86,21 @@ class CallOverlayStateWidget {
               padding: SystemWindowPadding(left: 10, right: 10, bottom: 10, top: 10),
               height: SystemWindowButton.WRAP_CONTENT,
               decoration: SystemWindowDecoration(startColor:const Color.fromARGB(255, 9, 94, 1), borderWidth: 0, borderRadius: 30.0),
+            ),
+            SystemWindowButton(
+              text: SystemWindowText(text: "Close", fontSize: 12, textColor: Colors.white),
+              tag: "close",
+              width: 0,
+              padding: SystemWindowPadding(left: 5, right: 5, bottom: 5, top: 5),
+              height: SystemWindowButton.WRAP_CONTENT,
+              decoration: SystemWindowDecoration(startColor:const Color.fromARGB(255, 9, 94, 1), borderWidth: 0, borderRadius: 30.0),
             )
           ],
           padding: SystemWindowPadding(left: 16, right: 16, bottom: 12, top: 10),
           decoration: SystemWindowDecoration(startColor: Colors.white),
           buttonsPosition: ButtonPosition.CENTER);
   }
+ 
 
 
 }

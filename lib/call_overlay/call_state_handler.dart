@@ -8,9 +8,9 @@ callStateHandler(
   int duration,){
   if(event == PhoneStateBackgroundEvent.incomingend
     || event == PhoneStateBackgroundEvent.outgoingend){
-      // CallOverlayStateWidget
-      //   .getInstance()
-      //   .close();
+      CallOverlayStateWidget
+        .getInstance()
+        .show(event, number);
       return;
     }
   CallOverlayStateWidget
